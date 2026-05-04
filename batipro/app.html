@@ -1,0 +1,1467 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BâtiPro — Application</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg:        #F7F8FA;
+            --surface:   #FFFFFF;
+            --surface-2: #FAFBFC;
+            --ink:       #0E1116;
+            --ink-soft:  #4A5568;
+            --ink-muted: #8A94A6;
+            --line:      #E5E7EB;
+            --line-soft: #F1F2F4;
+            --accent:    #FF6B1A;
+            --accent-2:  #FF8A3D;
+            --accent-dark: #E55A0F;
+            --accent-soft: rgba(255,107,26,0.10);
+            --green:     #16A34A;
+            --green-soft:rgba(22,163,74,0.12);
+            --blue:      #2563EB;
+            --blue-soft: rgba(37,99,235,0.12);
+            --yellow:    #F59E0B;
+            --yellow-soft:rgba(245,158,11,0.14);
+            --red:       #DC2626;
+            --red-soft:  rgba(220,38,38,0.12);
+            --purple:    #7C3AED;
+            --purple-soft:rgba(124,58,237,0.12);
+
+            --radius-sm: 10px;
+            --radius:    14px;
+            --radius-lg: 18px;
+
+            --shadow-sm: 0 1px 2px rgba(15,23,42,0.05);
+            --shadow:    0 4px 12px -2px rgba(15,23,42,0.08);
+            --shadow-lg: 0 16px 40px -10px rgba(15,23,42,0.18);
+
+            --easing: cubic-bezier(0.28, 0.11, 0.32, 1);
+
+            --sidebar-w: 248px;
+        }
+
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html, body { height: 100%; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--ink);
+            -webkit-font-smoothing: antialiased;
+            font-feature-settings: "ss01", "cv11";
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        a { color: inherit; text-decoration: none; }
+        button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+        input, select, textarea { font-family: inherit; font-size: inherit; }
+
+        /* ========== LAYOUT ========== */
+        .app {
+            display: grid;
+            grid-template-columns: var(--sidebar-w) 1fr;
+            min-height: 100vh;
+        }
+
+        /* ========== SIDEBAR ========== */
+        .sidebar {
+            background: var(--surface);
+            border-right: 1px solid var(--line);
+            padding: 18px 14px;
+            display: flex; flex-direction: column;
+            position: sticky; top: 0;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        .brand {
+            display: flex; align-items: center; gap: 10px;
+            padding: 4px 8px 18px;
+        }
+        .brand-mark {
+            width: 32px; height: 32px;
+            border-radius: 9px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            display: grid; place-items: center;
+            color: #fff;
+            box-shadow: 0 6px 14px rgba(255,107,26,0.32);
+        }
+        .brand-mark svg { width: 16px; height: 16px; }
+        .brand-name { font-weight: 700; letter-spacing: -0.02em; font-size: 1.05rem; }
+        .brand small { display: block; color: var(--ink-muted); font-weight: 500; font-size: 0.7rem; letter-spacing: 0.04em; }
+
+        .org {
+            margin: 4px 0 16px;
+            padding: 10px 12px;
+            background: var(--surface-2);
+            border: 1px solid var(--line);
+            border-radius: var(--radius-sm);
+            display: flex; align-items: center; gap: 10px;
+            cursor: pointer;
+            transition: background 0.2s var(--easing);
+        }
+        .org:hover { background: #f3f4f6; }
+        .org-avatar {
+            width: 28px; height: 28px;
+            border-radius: 7px;
+            background: linear-gradient(135deg, #1f2937, #4b5563);
+            color: #fff;
+            display: grid; place-items: center;
+            font-size: 0.75rem; font-weight: 700;
+        }
+        .org-info { flex: 1; min-width: 0; }
+        .org-name { font-weight: 600; font-size: 0.84rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .org-plan { font-size: 0.7rem; color: var(--ink-muted); }
+        .org svg { width: 14px; height: 14px; color: var(--ink-muted); }
+
+        .nav-label {
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--ink-muted);
+            font-weight: 600;
+            padding: 14px 12px 6px;
+        }
+        .nav-list { list-style: none; display: flex; flex-direction: column; gap: 1px; }
+        .nav-item {
+            display: flex; align-items: center; gap: 11px;
+            padding: 9px 12px;
+            border-radius: 9px;
+            font-size: 0.86rem;
+            color: var(--ink-soft);
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.18s var(--easing), color 0.18s var(--easing);
+            border: none; background: none;
+            width: 100%; text-align: left;
+        }
+        .nav-item:hover { background: var(--surface-2); color: var(--ink); }
+        .nav-item.active {
+            background: var(--ink);
+            color: #fff;
+            box-shadow: var(--shadow-sm);
+        }
+        .nav-item.active .badge { background: rgba(255,255,255,0.18); color: #fff; }
+        .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+        .nav-item .badge {
+            margin-left: auto;
+            font-size: 0.7rem;
+            padding: 1px 7px; border-radius: 999px;
+            background: var(--accent-soft); color: var(--accent);
+            font-weight: 600;
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding-top: 14px;
+            border-top: 1px solid var(--line);
+        }
+        .user-card {
+            display: flex; align-items: center; gap: 10px;
+            padding: 8px 10px; border-radius: 9px;
+            cursor: pointer;
+            transition: background 0.2s var(--easing);
+        }
+        .user-card:hover { background: var(--surface-2); }
+        .avatar {
+            width: 30px; height: 30px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #FF6B1A, #FF8A3D);
+            color: #fff;
+            display: grid; place-items: center;
+            font-weight: 700; font-size: 0.78rem;
+            flex-shrink: 0;
+        }
+        .user-name { font-weight: 600; font-size: 0.84rem; }
+        .user-role { font-size: 0.7rem; color: var(--ink-muted); }
+
+        /* ========== MAIN ========== */
+        main { display: flex; flex-direction: column; min-width: 0; }
+
+        .topbar {
+            display: flex; align-items: center; gap: 16px;
+            padding: 14px 28px;
+            background: rgba(247,248,250,0.85);
+            backdrop-filter: saturate(180%) blur(14px);
+            -webkit-backdrop-filter: saturate(180%) blur(14px);
+            border-bottom: 1px solid var(--line);
+            position: sticky; top: 0; z-index: 50;
+        }
+        .search {
+            flex: 1; max-width: 480px;
+            display: flex; align-items: center; gap: 10px;
+            padding: 9px 14px;
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+        }
+        .search:focus-within { border-color: var(--ink); box-shadow: 0 0 0 3px rgba(0,0,0,0.05); }
+        .search svg { width: 15px; height: 15px; color: var(--ink-muted); flex-shrink: 0; }
+        .search input {
+            flex: 1; border: none; outline: none; background: transparent;
+            font-size: 0.88rem; color: var(--ink);
+        }
+        .search kbd {
+            font-family: ui-monospace, monospace;
+            background: var(--bg);
+            border: 1px solid var(--line);
+            border-radius: 5px;
+            padding: 2px 6px;
+            font-size: 0.7rem; color: var(--ink-muted);
+        }
+        .topbar-actions { display: flex; align-items: center; gap: 6px; margin-left: auto; }
+        .icon-btn {
+            width: 36px; height: 36px;
+            border-radius: 10px;
+            display: grid; place-items: center;
+            color: var(--ink-soft);
+            transition: background 0.2s var(--easing), color 0.2s var(--easing);
+            position: relative;
+        }
+        .icon-btn:hover { background: var(--surface); color: var(--ink); }
+        .icon-btn svg { width: 17px; height: 17px; }
+        .icon-btn .dot {
+            position: absolute; top: 8px; right: 9px;
+            width: 7px; height: 7px;
+            background: var(--accent); border-radius: 50%;
+            border: 2px solid var(--bg);
+        }
+
+        .content { padding: 28px; flex: 1; min-width: 0; }
+
+        /* ========== PAGE HEADER ========== */
+        .page-head {
+            display: flex; align-items: flex-end; justify-content: space-between;
+            gap: 16px; flex-wrap: wrap;
+            margin-bottom: 24px;
+        }
+        .page-head h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+        .page-head .sub { color: var(--ink-soft); font-size: 0.9rem; margin-top: 2px; }
+        .page-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+        .btn {
+            display: inline-flex; align-items: center; gap: 7px;
+            padding: 9px 16px;
+            border-radius: 10px;
+            font-size: 0.86rem; font-weight: 600;
+            transition: transform 0.15s var(--easing), background 0.2s var(--easing);
+            border: 1px solid transparent;
+        }
+        .btn svg { width: 14px; height: 14px; }
+        .btn-primary { background: var(--ink); color: #fff; }
+        .btn-primary:hover { background: #2a2a2c; }
+        .btn-accent { background: var(--accent); color: #fff; box-shadow: 0 4px 12px rgba(255,107,26,0.3); }
+        .btn-accent:hover { background: var(--accent-dark); }
+        .btn-ghost { background: var(--surface); border-color: var(--line); color: var(--ink); }
+        .btn-ghost:hover { background: var(--surface-2); }
+
+        /* ========== STATS GRID ========== */
+        .grid-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin-bottom: 22px;
+        }
+        @media (max-width: 1100px) { .grid-stats { grid-template-columns: repeat(2, 1fr); } }
+
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            padding: 18px 18px 16px;
+            box-shadow: var(--shadow-sm);
+        }
+        .stat-card .top {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 14px;
+        }
+        .stat-card .lbl { font-size: 0.78rem; color: var(--ink-muted); font-weight: 500; }
+        .stat-ico {
+            width: 30px; height: 30px;
+            border-radius: 8px;
+            display: grid; place-items: center;
+        }
+        .stat-ico svg { width: 15px; height: 15px; }
+        .ico-orange { background: var(--accent-soft); color: var(--accent); }
+        .ico-blue { background: var(--blue-soft); color: var(--blue); }
+        .ico-green { background: var(--green-soft); color: var(--green); }
+        .ico-purple { background: var(--purple-soft); color: var(--purple); }
+        .ico-yellow { background: var(--yellow-soft); color: var(--yellow); }
+        .ico-red { background: var(--red-soft); color: var(--red); }
+
+        .stat-val {
+            font-size: 1.65rem;
+            font-weight: 800;
+            letter-spacing: -0.025em;
+        }
+        .stat-delta {
+            display: inline-flex; align-items: center; gap: 4px;
+            font-size: 0.78rem; font-weight: 600;
+            margin-top: 6px;
+        }
+        .stat-delta.up { color: var(--green); }
+        .stat-delta.down { color: var(--red); }
+        .stat-delta .grey { color: var(--ink-muted); font-weight: 500; margin-left: 4px; }
+
+        /* ========== GRID ========== */
+        .grid-2 { display: grid; grid-template-columns: 2fr 1fr; gap: 14px; }
+        @media (max-width: 1100px) { .grid-2 { grid-template-columns: 1fr; } }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+        }
+        .card-head {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 18px 20px 14px;
+            border-bottom: 1px solid var(--line-soft);
+        }
+        .card-head h3 { font-size: 0.95rem; font-weight: 700; }
+        .card-head .sub { color: var(--ink-muted); font-size: 0.78rem; margin-top: 2px;}
+        .card-head .act { display: flex; gap: 6px; align-items: center; }
+        .pill-btn {
+            font-size: 0.74rem; font-weight: 600;
+            padding: 5px 10px; border-radius: 7px;
+            color: var(--ink-soft);
+            background: var(--surface-2);
+            border: 1px solid var(--line);
+        }
+        .pill-btn.active { background: var(--ink); color: #fff; border-color: var(--ink);}
+        .card-body { padding: 18px 20px; }
+
+        /* ========== CHART ========== */
+        .chart {
+            display: flex; align-items: flex-end; gap: 10px;
+            height: 220px;
+            padding: 8px 0;
+        }
+        .chart .col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+        .chart .bar-wrap {
+            width: 100%; height: 100%;
+            display: flex; flex-direction: column-reverse; gap: 2px;
+        }
+        .chart .bar {
+            background: var(--accent);
+            border-radius: 5px 5px 0 0;
+            width: 100%;
+            transition: opacity 0.2s var(--easing);
+        }
+        .chart .bar.alt { background: var(--accent-soft); }
+        .chart .col:hover .bar { opacity: 0.8; }
+        .chart .lbl { font-size: 0.72rem; color: var(--ink-muted); font-weight: 500; }
+
+        .legend { display: flex; gap: 14px; align-items: center; }
+        .legend span { display: inline-flex; align-items: center; gap: 6px; font-size: 0.74rem; color: var(--ink-soft); }
+        .legend i { width: 9px; height: 9px; border-radius: 2px; }
+
+        /* ========== ACTIVITY ========== */
+        .activity { display: flex; flex-direction: column; }
+        .activity-row {
+            display: flex; align-items: flex-start; gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--line-soft);
+        }
+        .activity-row:last-child { border-bottom: none; padding-bottom: 0; }
+        .activity-row:first-child { padding-top: 0; }
+        .av-ico {
+            width: 32px; height: 32px;
+            border-radius: 9px;
+            display: grid; place-items: center; flex-shrink: 0;
+        }
+        .av-ico svg { width: 14px; height: 14px; }
+        .av-text { font-size: 0.84rem; color: var(--ink); flex: 1; }
+        .av-text strong { font-weight: 600; }
+        .av-time { font-size: 0.74rem; color: var(--ink-muted); margin-top: 2px; }
+
+        /* ========== TABLE ========== */
+        .tbl { width: 100%; border-collapse: collapse; }
+        .tbl th, .tbl td { text-align: left; padding: 12px 16px; font-size: 0.86rem; }
+        .tbl th {
+            font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em;
+            color: var(--ink-muted); font-weight: 600;
+            border-bottom: 1px solid var(--line);
+            background: var(--surface-2);
+        }
+        .tbl tr { border-bottom: 1px solid var(--line-soft); transition: background 0.15s var(--easing); }
+        .tbl tbody tr:hover { background: var(--surface-2); }
+        .tbl tbody tr:last-child { border-bottom: none; }
+        .tbl .strong { font-weight: 600; color: var(--ink); }
+        .tbl .grey { color: var(--ink-muted); font-size: 0.78rem; }
+        .tbl .num { font-variant-numeric: tabular-nums; font-weight: 600; }
+
+        .badge {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 3px 9px;
+            border-radius: 999px;
+            font-size: 0.72rem;
+            font-weight: 600;
+        }
+        .badge .dt { width: 6px; height: 6px; border-radius: 50%; }
+        .b-green { background: var(--green-soft); color: var(--green); }
+        .b-green .dt { background: var(--green); }
+        .b-blue { background: var(--blue-soft); color: var(--blue); }
+        .b-blue .dt { background: var(--blue); }
+        .b-yellow { background: var(--yellow-soft); color: #B45309; }
+        .b-yellow .dt { background: var(--yellow); }
+        .b-red { background: var(--red-soft); color: var(--red); }
+        .b-red .dt { background: var(--red); }
+        .b-grey { background: #F1F2F4; color: var(--ink-muted); }
+        .b-grey .dt { background: var(--ink-muted); }
+        .b-orange { background: var(--accent-soft); color: var(--accent-dark); }
+        .b-orange .dt { background: var(--accent); }
+
+        /* ========== PROGRESS ========== */
+        .progress {
+            position: relative;
+            height: 6px;
+            background: var(--line);
+            border-radius: 999px;
+            overflow: hidden;
+            min-width: 80px;
+        }
+        .progress > i {
+            position: absolute; top: 0; left: 0; bottom: 0;
+            background: var(--accent);
+            border-radius: 999px;
+            transition: width 0.4s var(--easing);
+        }
+
+        /* ========== VIEWS ========== */
+        .view { display: none; animation: fadeIn 0.35s var(--easing); }
+        .view.active { display: block; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ========== CHANTIERS CARDS ========== */
+        .filters {
+            display: flex; gap: 8px; flex-wrap: wrap;
+            margin-bottom: 18px;
+        }
+        .chip {
+            padding: 7px 14px;
+            border-radius: 999px;
+            background: var(--surface);
+            border: 1px solid var(--line);
+            font-size: 0.82rem; font-weight: 500;
+            color: var(--ink-soft);
+            cursor: pointer;
+            transition: all 0.18s var(--easing);
+        }
+        .chip:hover { border-color: var(--ink); }
+        .chip.active { background: var(--ink); color: #fff; border-color: var(--ink); }
+        .chip .count {
+            margin-left: 6px; padding: 1px 7px;
+            border-radius: 999px;
+            background: rgba(0,0,0,0.06);
+            font-size: 0.7rem; font-weight: 600;
+        }
+        .chip.active .count { background: rgba(255,255,255,0.18); }
+
+        .chantier-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 14px;
+        }
+        .chantier {
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            padding: 18px;
+            cursor: pointer;
+            transition: transform 0.2s var(--easing), box-shadow 0.2s var(--easing);
+            box-shadow: var(--shadow-sm);
+        }
+        .chantier:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+        .chantier .top {
+            display: flex; justify-content: space-between; align-items: flex-start;
+            margin-bottom: 12px; gap: 10px;
+        }
+        .chantier .ref { font-size: 0.72rem; color: var(--ink-muted); font-weight: 600; letter-spacing: 0.04em; }
+        .chantier h4 { font-size: 1rem; font-weight: 700; margin-top: 4px; letter-spacing: -0.01em; }
+        .chantier .meta { color: var(--ink-soft); font-size: 0.82rem; margin-top: 4px; display: flex; align-items: center; gap: 6px; }
+        .chantier .meta svg { width: 12px; height: 12px; }
+        .chantier .row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 0;
+            border-top: 1px solid var(--line-soft);
+            font-size: 0.82rem;
+        }
+        .chantier .row .l { color: var(--ink-muted); }
+        .chantier .row .r { font-weight: 600; }
+        .chantier .progress-row {
+            display: flex; align-items: center; gap: 10px;
+            margin-top: 10px;
+        }
+        .chantier .pct { font-size: 0.78rem; font-weight: 700; min-width: 36px; text-align: right; }
+        .chantier-team {
+            display: flex; align-items: center;
+            margin-top: 10px;
+        }
+        .av-mini {
+            width: 24px; height: 24px;
+            border-radius: 50%;
+            background: var(--accent);
+            color: #fff;
+            display: grid; place-items: center;
+            font-size: 0.65rem; font-weight: 700;
+            border: 2px solid #fff;
+            margin-left: -6px;
+        }
+        .av-mini:first-child { margin-left: 0; }
+        .av-mini.b1 { background: #2563EB; }
+        .av-mini.b2 { background: #16A34A; }
+        .av-mini.b3 { background: #7C3AED; }
+        .av-mini.b4 { background: #DC2626; }
+        .av-more {
+            margin-left: 6px;
+            font-size: 0.72rem; color: var(--ink-muted); font-weight: 600;
+        }
+
+        /* ========== POINTAGE ========== */
+        .pointage-list { display: flex; flex-direction: column; }
+        .point-row {
+            display: grid;
+            grid-template-columns: 40px 1.5fr 1fr 1fr 1fr 80px;
+            gap: 14px;
+            padding: 14px 18px;
+            border-bottom: 1px solid var(--line-soft);
+            align-items: center;
+            font-size: 0.86rem;
+        }
+        .point-row:last-child { border-bottom: none; }
+        .point-row:hover { background: var(--surface-2); }
+        .point-row .av { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-weight: 700; font-size: 0.74rem; }
+        .point-row .name { font-weight: 600; }
+        .point-row .meta { color: var(--ink-muted); font-size: 0.76rem; margin-top: 1px; }
+
+        /* ========== EQUIPE ========== */
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 14px;
+        }
+        .member {
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            padding: 18px;
+            box-shadow: var(--shadow-sm);
+            text-align: center;
+        }
+        .member .avatar-lg {
+            width: 64px; height: 64px;
+            border-radius: 50%;
+            display: grid; place-items: center;
+            font-weight: 700; font-size: 1.4rem; color: #fff;
+            margin: 0 auto 14px;
+        }
+        .member h4 { font-size: 1rem; font-weight: 700; }
+        .member .role { color: var(--ink-muted); font-size: 0.8rem; margin-top: 2px; }
+        .member .stats-mini {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-top: 14px; padding-top: 14px;
+            border-top: 1px solid var(--line-soft);
+        }
+        .member .stats-mini .v { font-weight: 700; font-size: 0.95rem; }
+        .member .stats-mini .l { font-size: 0.68rem; color: var(--ink-muted); }
+
+        /* ========== DOCUMENTS ========== */
+        .doc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 14px;
+        }
+        .doc {
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            padding: 18px;
+            cursor: pointer;
+            transition: all 0.2s var(--easing);
+            box-shadow: var(--shadow-sm);
+        }
+        .doc:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+        .doc-icon {
+            width: 44px; height: 44px;
+            border-radius: 10px;
+            display: grid; place-items: center;
+            color: #fff;
+            font-size: 0.7rem; font-weight: 800;
+            margin-bottom: 12px;
+        }
+        .doc.pdf .doc-icon { background: linear-gradient(135deg, #DC2626, #B91C1C); }
+        .doc.xls .doc-icon { background: linear-gradient(135deg, #16A34A, #15803D); }
+        .doc.dwg .doc-icon { background: linear-gradient(135deg, #2563EB, #1E40AF); }
+        .doc.img .doc-icon { background: linear-gradient(135deg, #7C3AED, #6D28D9); }
+        .doc h5 { font-size: 0.86rem; font-weight: 600; line-height: 1.3; }
+        .doc .meta { font-size: 0.72rem; color: var(--ink-muted); margin-top: 6px; }
+
+        /* ========== MOBILE ========== */
+        @media (max-width: 880px) {
+            :root { --sidebar-w: 0px; }
+            .sidebar { display: none; }
+            .content { padding: 18px; }
+            .topbar { padding: 12px 18px; }
+            .point-row { grid-template-columns: 40px 1fr 1fr; }
+            .point-row > :nth-child(4),
+            .point-row > :nth-child(5),
+            .point-row > :nth-child(6) { display: none; }
+        }
+
+        /* ========== UTIL ========== */
+        .center-y { display: flex; align-items: center; gap: 10px; }
+        .text-muted { color: var(--ink-muted); }
+        .text-right { text-align: right; }
+        .empty {
+            text-align: center; padding: 60px 20px;
+            color: var(--ink-muted);
+        }
+    </style>
+</head>
+<body>
+
+<div class="app">
+
+<!-- ============ SIDEBAR ============ -->
+<aside class="sidebar">
+    <a class="brand" href="index.html">
+        <span class="brand-mark">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 21h18"/><path d="M5 21V8l7-5 7 5v13"/><path d="M9 21V12h6v9"/>
+            </svg>
+        </span>
+        <div>
+            <div class="brand-name">BâtiPro</div>
+            <small>SaaS BTP</small>
+        </div>
+    </a>
+
+    <div class="org">
+        <div class="org-avatar">ML</div>
+        <div class="org-info">
+            <div class="org-name">Maçonnerie Lefèvre</div>
+            <div class="org-plan">Plan Pro · 12 utilisateurs</div>
+        </div>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+
+    <div class="nav-label">Pilotage</div>
+    <ul class="nav-list">
+        <li><button class="nav-item active" data-view="dashboard">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+            Tableau de bord
+        </button></li>
+        <li><button class="nav-item" data-view="chantiers">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V8l7-5 7 5v13"/><path d="M9 21V12h6v9"/></svg>
+            Chantiers
+            <span class="badge">14</span>
+        </button></li>
+        <li><button class="nav-item" data-view="devis">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8"/><path d="M8 10h8"/><path d="M8 14h5"/></svg>
+            Devis & Factures
+        </button></li>
+        <li><button class="nav-item" data-view="planning">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Planning
+        </button></li>
+    </ul>
+
+    <div class="nav-label">Ressources</div>
+    <ul class="nav-list">
+        <li><button class="nav-item" data-view="equipes">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            Équipes
+        </button></li>
+        <li><button class="nav-item" data-view="pointage">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Pointage
+            <span class="badge">3</span>
+        </button></li>
+        <li><button class="nav-item" data-view="materiaux">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+            Matériaux
+        </button></li>
+        <li><button class="nav-item" data-view="documents">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            Documents
+        </button></li>
+    </ul>
+
+    <div class="sidebar-footer">
+        <div class="user-card">
+            <div class="avatar">JL</div>
+            <div style="flex:1; min-width:0;">
+                <div class="user-name">Julien Lefèvre</div>
+                <div class="user-role">Gérant</div>
+            </div>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--ink-muted);"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+        </div>
+    </div>
+</aside>
+
+<!-- ============ MAIN ============ -->
+<main>
+    <div class="topbar">
+        <div class="search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" placeholder="Rechercher un chantier, un devis, un client…">
+            <kbd>⌘K</kbd>
+        </div>
+        <div class="topbar-actions">
+            <button class="icon-btn" title="Aide">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </button>
+            <button class="icon-btn" title="Notifications">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                <span class="dot"></span>
+            </button>
+            <button class="btn btn-accent" id="btn-new">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Nouveau
+            </button>
+        </div>
+    </div>
+
+    <div class="content">
+
+        <!-- ========== DASHBOARD ========== -->
+        <section class="view active" id="view-dashboard">
+            <div class="page-head">
+                <div>
+                    <h1>Bonjour Julien 👋</h1>
+                    <div class="sub">Voici un aperçu de votre activité — semaine du 4 au 10 mai 2026</div>
+                </div>
+                <div class="page-actions">
+                    <button class="btn btn-ghost">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        Exporter
+                    </button>
+                    <button class="btn btn-primary">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        Créer un devis
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid-stats">
+                <div class="stat-card">
+                    <div class="top">
+                        <span class="lbl">Chiffre d'affaires</span>
+                        <span class="stat-ico ico-orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span>
+                    </div>
+                    <div class="stat-val">87 420 €</div>
+                    <div class="stat-delta up">▲ 12,4 %<span class="grey">vs avril</span></div>
+                </div>
+                <div class="stat-card">
+                    <div class="top">
+                        <span class="lbl">Chantiers actifs</span>
+                        <span class="stat-ico ico-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V8l7-5 7 5v13"/><path d="M9 21V12h6v9"/></svg></span>
+                    </div>
+                    <div class="stat-val">14</div>
+                    <div class="stat-delta up">▲ 3<span class="grey">nouveaux ce mois</span></div>
+                </div>
+                <div class="stat-card">
+                    <div class="top">
+                        <span class="lbl">À encaisser</span>
+                        <span class="stat-ico ico-yellow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
+                    </div>
+                    <div class="stat-val">23 100 €</div>
+                    <div class="stat-delta down">▼ 2,1 %<span class="grey">7 factures</span></div>
+                </div>
+                <div class="stat-card">
+                    <div class="top">
+                        <span class="lbl">Marge brute</span>
+                        <span class="stat-ico ico-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span>
+                    </div>
+                    <div class="stat-val">31,8 %</div>
+                    <div class="stat-delta up">▲ 1,2 pt<span class="grey">vs trimestre</span></div>
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-head">
+                        <div>
+                            <h3>Facturation 2026</h3>
+                            <div class="sub">Évolution mensuelle (en milliers d'€)</div>
+                        </div>
+                        <div class="act">
+                            <div class="legend">
+                                <span><i style="background:var(--accent);"></i> Facturé</span>
+                                <span><i style="background:var(--accent-soft);"></i> Devis signés</span>
+                            </div>
+                            <button class="pill-btn active">Mois</button>
+                            <button class="pill-btn">Trim.</button>
+                            <button class="pill-btn">Année</button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart" id="dashChart"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-head">
+                        <div>
+                            <h3>Activité récente</h3>
+                            <div class="sub">Aujourd'hui</div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="activity">
+                            <div class="activity-row">
+                                <div class="av-ico ico-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                                <div style="flex:1;">
+                                    <div class="av-text"><strong>Marc Dupont</strong> a signé le devis #DV-2026-0142</div>
+                                    <div class="av-time">il y a 12 min · 47 500 €</div>
+                                </div>
+                            </div>
+                            <div class="activity-row">
+                                <div class="av-ico ico-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+                                <div style="flex:1;">
+                                    <div class="av-text">Encaissement de <strong>9 800 €</strong> · Situation N°1 Dupont</div>
+                                    <div class="av-time">il y a 1 h</div>
+                                </div>
+                            </div>
+                            <div class="activity-row">
+                                <div class="av-ico ico-orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+                                <div style="flex:1;">
+                                    <div class="av-text"><strong>Karim B.</strong> a pointé son arrivée · Chantier Lilas</div>
+                                    <div class="av-time">il y a 2 h · 7h45</div>
+                                </div>
+                            </div>
+                            <div class="activity-row">
+                                <div class="av-ico ico-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div>
+                                <div style="flex:1;">
+                                    <div class="av-text">Commande matériaux livrée · <strong>Carrelage Marazzi</strong></div>
+                                    <div class="av-time">il y a 3 h · 1 240 €</div>
+                                </div>
+                            </div>
+                            <div class="activity-row">
+                                <div class="av-ico ico-yellow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+                                <div style="flex:1;">
+                                    <div class="av-text">Facture <strong>#F-2026-0089</strong> en retard de paiement (+ 12 j)</div>
+                                    <div class="av-time">il y a 5 h · client Garcia</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top: 14px;">
+                <div class="card-head">
+                    <div>
+                        <h3>Chantiers en cours</h3>
+                        <div class="sub">14 chantiers actifs cette semaine</div>
+                    </div>
+                    <button class="pill-btn" onclick="switchView('chantiers')">Voir tous →</button>
+                </div>
+                <table class="tbl">
+                    <thead>
+                        <tr>
+                            <th>Chantier</th>
+                            <th>Client</th>
+                            <th>Avancement</th>
+                            <th>Échéance</th>
+                            <th>Montant</th>
+                            <th>Statut</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dashChantiers"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ========== CHANTIERS ========== -->
+        <section class="view" id="view-chantiers">
+            <div class="page-head">
+                <div>
+                    <h1>Chantiers</h1>
+                    <div class="sub">Suivez l'avancement et la rentabilité de vos projets</div>
+                </div>
+                <div class="page-actions">
+                    <button class="btn btn-ghost">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                        Filtres
+                    </button>
+                    <button class="btn btn-accent">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        Nouveau chantier
+                    </button>
+                </div>
+            </div>
+
+            <div class="filters">
+                <button class="chip active">Tous <span class="count">14</span></button>
+                <button class="chip">En cours <span class="count">9</span></button>
+                <button class="chip">À démarrer <span class="count">3</span></button>
+                <button class="chip">En pause <span class="count">1</span></button>
+                <button class="chip">Terminés <span class="count">1</span></button>
+            </div>
+
+            <div class="chantier-grid" id="chantierGrid"></div>
+        </section>
+
+        <!-- ========== DEVIS & FACTURES ========== -->
+        <section class="view" id="view-devis">
+            <div class="page-head">
+                <div>
+                    <h1>Devis & Factures</h1>
+                    <div class="sub">Gérez vos documents commerciaux et leur suivi de paiement</div>
+                </div>
+                <div class="page-actions">
+                    <button class="btn btn-ghost">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                        Modèles
+                    </button>
+                    <button class="btn btn-primary">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        Créer un devis
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid-stats">
+                <div class="stat-card">
+                    <div class="top"><span class="lbl">Devis envoyés</span><span class="stat-ico ico-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></span></div>
+                    <div class="stat-val">28</div>
+                    <div class="stat-delta up">▲ 6 ce mois</div>
+                </div>
+                <div class="stat-card">
+                    <div class="top"><span class="lbl">Taux d'acceptation</span><span class="stat-ico ico-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span></div>
+                    <div class="stat-val">68 %</div>
+                    <div class="stat-delta up">▲ 4 pts</div>
+                </div>
+                <div class="stat-card">
+                    <div class="top"><span class="lbl">Factures émises</span><span class="stat-ico ico-orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></span></div>
+                    <div class="stat-val">42</div>
+                    <div class="stat-delta up">▲ 8</div>
+                </div>
+                <div class="stat-card">
+                    <div class="top"><span class="lbl">En retard</span><span class="stat-ico ico-red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></span></div>
+                    <div class="stat-val">3</div>
+                    <div class="stat-delta down">5 800 €</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-head">
+                    <div>
+                        <h3>Documents récents</h3>
+                        <div class="sub">Devis, factures et avoirs</div>
+                    </div>
+                    <div class="act">
+                        <button class="pill-btn active">Tous</button>
+                        <button class="pill-btn">Devis</button>
+                        <button class="pill-btn">Factures</button>
+                        <button class="pill-btn">Avoirs</button>
+                    </div>
+                </div>
+                <table class="tbl">
+                    <thead>
+                        <tr>
+                            <th>N°</th>
+                            <th>Type</th>
+                            <th>Client</th>
+                            <th>Émis le</th>
+                            <th>Échéance</th>
+                            <th class="text-right">Montant TTC</th>
+                            <th>Statut</th>
+                        </tr>
+                    </thead>
+                    <tbody id="devisTable"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ========== PLANNING ========== -->
+        <section class="view" id="view-planning">
+            <div class="page-head">
+                <div>
+                    <h1>Planning</h1>
+                    <div class="sub">Affectez vos équipes aux chantiers — semaine du 4 au 10 mai 2026</div>
+                </div>
+                <div class="page-actions">
+                    <button class="btn btn-ghost">← Semaine préc.</button>
+                    <button class="btn btn-ghost">Aujourd'hui</button>
+                    <button class="btn btn-ghost">Semaine suiv. →</button>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-body" style="overflow-x: auto;">
+                    <div id="planning"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== ÉQUIPES ========== -->
+        <section class="view" id="view-equipes">
+            <div class="page-head">
+                <div>
+                    <h1>Équipes</h1>
+                    <div class="sub">12 collaborateurs · 3 équipes</div>
+                </div>
+                <div class="page-actions">
+                    <button class="btn btn-accent">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        Ajouter un membre
+                    </button>
+                </div>
+            </div>
+            <div class="team-grid" id="teamGrid"></div>
+        </section>
+
+        <!-- ========== POINTAGE ========== -->
+        <section class="view" id="view-pointage">
+            <div class="page-head">
+                <div>
+                    <h1>Pointage</h1>
+                    <div class="sub">Suivi temps de travail · Lundi 4 mai 2026</div>
+                </div>
+                <div class="page-actions">
+                    <button class="btn btn-ghost">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        Export paie
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid-stats">
+                <div class="stat-card">
+                    <div class="top"><span class="lbl">Présents</span><span class="stat-ico ico-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span></div>
+                    <div class="stat-val">9 / 12</div>
+                </div>
+                <div class="stat-card">
+                    <div class="top"><span class="lbl">Heures cumulées</span><span class="stat-ico ico-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span></div>
+                    <div class="stat-val">62 h 30</div>
+                </div>
+                <div class="stat-card">
+                    <div class="top"><span class="lbl">Heures sup.</span><span class="stat-ico ico-yellow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span></div>
+                    <div class="stat-val">4 h 15</div>
+                </div>
+                <div class="stat-card">
+                    <div class="top"><span class="lbl">Absents</span><span class="stat-ico ico-red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span></div>
+                    <div class="stat-val">3</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-head">
+                    <div><h3>Pointage du jour</h3><div class="sub">Données géolocalisées depuis l'app mobile</div></div>
+                </div>
+                <div class="pointage-list" id="pointageList"></div>
+            </div>
+        </section>
+
+        <!-- ========== MATÉRIAUX ========== -->
+        <section class="view" id="view-materiaux">
+            <div class="page-head">
+                <div>
+                    <h1>Matériaux & Stocks</h1>
+                    <div class="sub">Bibliothèque BTP · 12 458 références</div>
+                </div>
+                <div class="page-actions">
+                    <button class="btn btn-ghost">Catalogue</button>
+                    <button class="btn btn-accent">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        Nouvelle commande
+                    </button>
+                </div>
+            </div>
+            <div class="card">
+                <table class="tbl">
+                    <thead>
+                        <tr>
+                            <th>Référence</th>
+                            <th>Désignation</th>
+                            <th>Fournisseur</th>
+                            <th class="text-right">Stock</th>
+                            <th class="text-right">PU HT</th>
+                            <th>Statut</th>
+                        </tr>
+                    </thead>
+                    <tbody id="materiauxTable"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ========== DOCUMENTS ========== -->
+        <section class="view" id="view-documents">
+            <div class="page-head">
+                <div>
+                    <h1>Documents</h1>
+                    <div class="sub">Plans, photos chantier, PV de réception et contrats</div>
+                </div>
+                <div class="page-actions">
+                    <button class="btn btn-ghost">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                        Nouveau dossier
+                    </button>
+                    <button class="btn btn-accent">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                        Importer
+                    </button>
+                </div>
+            </div>
+            <div class="filters">
+                <button class="chip active">Tous</button>
+                <button class="chip">Plans</button>
+                <button class="chip">Photos</button>
+                <button class="chip">Contrats</button>
+                <button class="chip">PV de réception</button>
+            </div>
+            <div class="doc-grid" id="docGrid"></div>
+        </section>
+
+    </div>
+</main>
+
+</div>
+
+<script>
+// ========== DONNÉES ==========
+const CHANTIERS = [
+    { ref: 'CH-2026-014', nom: 'Réhabilitation maison T5', client: 'M. Dupont', lieu: 'Rue des Lilas, Lyon 7e', team: ['KB', 'JM', 'PL', 'AT'], pct: 65, montant: 47500, echeance: '12 juin', statut: 'cours' },
+    { ref: 'CH-2026-013', nom: 'Construction extension', client: 'SCI Garcia', lieu: 'Av. Foch, Villeurbanne', team: ['MK', 'NB', 'OP'], pct: 30, montant: 124800, echeance: '25 juil.', statut: 'cours' },
+    { ref: 'CH-2026-012', nom: 'Rénovation salle de bain', client: 'Mme Martin', lieu: 'Rue Vendôme, Lyon 3e', team: ['KB', 'JM'], pct: 92, montant: 14200, echeance: '8 mai', statut: 'cours' },
+    { ref: 'CH-2026-011', nom: 'Maçonnerie mur de clôture', client: 'M. Bernard', lieu: 'Caluire-et-Cuire', team: ['PL', 'AT'], pct: 100, montant: 8400, echeance: '2 mai', statut: 'fini' },
+    { ref: 'CH-2026-010', nom: 'Carrelage commerce', client: 'Boulangerie Petit', lieu: 'Cours Lafayette', team: ['NB', 'MK'], pct: 45, montant: 22300, echeance: '20 mai', statut: 'cours' },
+    { ref: 'CH-2026-009', nom: 'Toiture maison ancienne', client: 'M. Robert', lieu: 'Vénissieux', team: ['OP', 'JM', 'KB'], pct: 0, montant: 56700, echeance: '15 juin', statut: 'todo' },
+    { ref: 'CH-2026-008', nom: 'Isolation extérieure', client: 'Copropriété Soleil', lieu: 'Bron', team: ['PL', 'AT', 'NB'], pct: 78, montant: 89200, echeance: '30 mai', statut: 'cours' },
+    { ref: 'CH-2026-007', nom: 'Aménagement combles', client: 'M. Lemaitre', lieu: 'Tassin', team: ['KB', 'MK'], pct: 12, montant: 31500, echeance: '1 juil.', statut: 'cours' },
+    { ref: 'CH-2026-006', nom: 'Ravalement façade', client: 'Hôtel des Voyageurs', lieu: 'Lyon 2e', team: ['JM', 'OP', 'PL', 'AT', 'NB'], pct: 55, montant: 67800, echeance: '12 juin', statut: 'cours' },
+    { ref: 'CH-2026-005', nom: 'Cuisine professionnelle', client: 'Restaurant La Table', lieu: 'Vieux Lyon', team: ['MK', 'KB'], pct: 35, montant: 19400, echeance: '18 mai', statut: 'pause' },
+];
+
+const STATUT_BADGE = {
+    cours: { c: 'b-blue', t: 'En cours' },
+    fini: { c: 'b-green', t: 'Terminé' },
+    todo: { c: 'b-grey', t: 'À démarrer' },
+    pause: { c: 'b-yellow', t: 'En pause' },
+};
+
+const DEVIS = [
+    { num: 'DV-2026-0142', type: 'Devis', client: 'M. Dupont', emis: '12 mars', echeance: '—', mt: 47500, statut: 'signe' },
+    { num: 'F-2026-0091', type: 'Facture', client: 'M. Dupont', emis: '14 mars', echeance: '14 avr.', mt: 14250, statut: 'paye' },
+    { num: 'F-2026-0092', type: 'Facture', client: 'M. Dupont', emis: '28 mars', echeance: '28 avr.', mt: 9800, statut: 'paye' },
+    { num: 'DV-2026-0143', type: 'Devis', client: 'SCI Garcia', emis: '15 mars', echeance: '—', mt: 124800, statut: 'envoye' },
+    { num: 'F-2026-0089', type: 'Facture', client: 'Garcia BTP', emis: '5 mars', echeance: '5 avr.', mt: 5800, statut: 'retard' },
+    { num: 'DV-2026-0144', type: 'Devis', client: 'Boulangerie Petit', emis: '20 mars', echeance: '—', mt: 22300, statut: 'signe' },
+    { num: 'F-2026-0093', type: 'Facture', client: 'Mme Martin', emis: '2 avr.', echeance: '2 mai', mt: 4200, statut: 'envoye' },
+    { num: 'DV-2026-0145', type: 'Devis', client: 'Copropriété Soleil', emis: '8 avr.', echeance: '—', mt: 89200, statut: 'signe' },
+    { num: 'F-2026-0094', type: 'Facture', client: 'Restaurant La Table', emis: '15 avr.', echeance: '15 mai', mt: 6800, statut: 'envoye' },
+    { num: 'AV-2026-0003', type: 'Avoir', client: 'M. Bernard', emis: '20 avr.', echeance: '—', mt: -340, statut: 'paye' },
+];
+
+const DEVIS_BADGE = {
+    signe: { c: 'b-green', t: 'Signé' },
+    envoye: { c: 'b-blue', t: 'Envoyé' },
+    paye: { c: 'b-green', t: 'Payée' },
+    retard: { c: 'b-red', t: 'En retard' },
+    brouillon: { c: 'b-grey', t: 'Brouillon' },
+};
+
+const TEAM = [
+    { i: 'JL', n: 'Julien Lefèvre', r: 'Gérant', c: '#FF6B1A', h: 38, c_count: 14, prj: 6 },
+    { i: 'KB', n: 'Karim Bouanani', r: 'Chef de chantier', c: '#2563EB', h: 39, c_count: 4, prj: 3 },
+    { i: 'JM', n: 'Jean Moreau', r: 'Maçon', c: '#16A34A', h: 38, c_count: 3, prj: 2 },
+    { i: 'PL', n: 'Pierre Lecomte', r: 'Plâtrier', c: '#7C3AED', h: 39, c_count: 4, prj: 3 },
+    { i: 'AT', n: 'Antoine Thibault', r: 'Carreleur', c: '#DC2626', h: 37, c_count: 3, prj: 2 },
+    { i: 'MK', n: 'Mehdi Khaled', r: 'Plombier', c: '#0EA5E9', h: 39, c_count: 4, prj: 3 },
+    { i: 'NB', n: 'Nicolas Bertrand', r: 'Électricien', c: '#F59E0B', h: 38, c_count: 3, prj: 2 },
+    { i: 'OP', n: 'Olivier Petit', r: 'Couvreur', c: '#14B8A6', h: 36, c_count: 2, prj: 2 },
+];
+
+const POINTAGE = [
+    { i: 'KB', c: '#2563EB', n: 'Karim Bouanani', r: 'Chef de chantier', ch: 'CH-2026-014 · Lilas', start: '07:45', end: '— en cours', total: '7 h 45', etat: 'present' },
+    { i: 'JM', c: '#16A34A', n: 'Jean Moreau', r: 'Maçon', ch: 'CH-2026-014 · Lilas', start: '07:50', end: '— en cours', total: '7 h 40', etat: 'present' },
+    { i: 'PL', c: '#7C3AED', n: 'Pierre Lecomte', r: 'Plâtrier', ch: 'CH-2026-008 · Bron', start: '08:00', end: '— en cours', total: '7 h 30', etat: 'present' },
+    { i: 'AT', c: '#DC2626', n: 'Antoine Thibault', r: 'Carreleur', ch: 'CH-2026-012 · Vendôme', start: '07:30', end: '12:00', total: '4 h 30', etat: 'pause' },
+    { i: 'MK', c: '#0EA5E9', n: 'Mehdi Khaled', r: 'Plombier', ch: 'CH-2026-013 · Foch', start: '08:15', end: '— en cours', total: '7 h 15', etat: 'present' },
+    { i: 'NB', c: '#F59E0B', n: 'Nicolas Bertrand', r: 'Électricien', ch: 'CH-2026-008 · Bron', start: '08:00', end: '— en cours', total: '7 h 30', etat: 'present' },
+    { i: 'OP', c: '#14B8A6', n: 'Olivier Petit', r: 'Couvreur', ch: 'CH-2026-006 · Lyon 2e', start: '07:30', end: '— en cours', total: '8 h 00', etat: 'present' },
+    { i: 'CB', c: '#A855F7', n: 'Clément Boyer', r: 'Apprenti', ch: '—', start: '—', end: '—', total: '—', etat: 'absent' },
+];
+
+const POINT_BADGE = {
+    present: { c: 'b-green', t: 'Présent' },
+    pause: { c: 'b-yellow', t: 'Pause' },
+    absent: { c: 'b-red', t: 'Absent' },
+};
+
+const MATERIAUX = [
+    { ref: 'CIM-001', nom: 'Ciment CEM I 42,5 — sac 35kg', frn: 'Lafarge', stock: 124, pu: 8.40, etat: 'ok' },
+    { ref: 'PAR-203', nom: 'Parpaing creux 20x20x50', frn: 'Point P', stock: 1840, pu: 1.85, etat: 'ok' },
+    { ref: 'CAR-MAR-1', nom: 'Carrelage Marazzi 60x60 — Beige', frn: 'Cedeo', stock: 12, pu: 38.90, etat: 'low' },
+    { ref: 'PLA-BA13', nom: 'Plaque BA13 placo standard', frn: 'Saint-Gobain', stock: 245, pu: 6.20, etat: 'ok' },
+    { ref: 'ISO-LDV', nom: 'Laine de verre rouleau 100mm', frn: 'Isover', stock: 0, pu: 24.50, etat: 'out' },
+    { ref: 'TUI-001', nom: 'Tuile terre cuite — modèle Romane', frn: 'Terreal', stock: 3200, pu: 1.45, etat: 'ok' },
+    { ref: 'PLB-PVC32', nom: 'Tube PVC évacuation Ø32 — 2m', frn: 'Cedeo', stock: 8, pu: 4.80, etat: 'low' },
+    { ref: 'ELE-CAB-3G', nom: 'Câble électrique 3G2,5 — couronne', frn: 'Rexel', stock: 18, pu: 89.00, etat: 'ok' },
+    { ref: 'PEI-BLA-15', nom: 'Peinture acrylique blanche — 15L', frn: 'Tollens', stock: 22, pu: 78.00, etat: 'ok' },
+];
+
+const MAT_BADGE = {
+    ok: { c: 'b-green', t: 'En stock' },
+    low: { c: 'b-yellow', t: 'Stock bas' },
+    out: { c: 'b-red', t: 'Rupture' },
+};
+
+const DOCS = [
+    { type: 'pdf', nom: 'Devis Dupont signé.pdf', meta: 'PDF · 1,2 Mo · 12 mars' },
+    { type: 'dwg', nom: 'Plan extension Garcia.dwg', meta: 'AutoCAD · 8,4 Mo · 15 mars' },
+    { type: 'img', nom: 'Avancement Lilas — semaine 14', meta: '24 photos · 18 avr.' },
+    { type: 'pdf', nom: 'Contrat sous-traitance ABC.pdf', meta: 'PDF · 480 Ko · 2 avr.' },
+    { type: 'xls', nom: 'Métré chantier Foch.xlsx', meta: 'Excel · 320 Ko · 8 avr.' },
+    { type: 'pdf', nom: 'PV réception Bernard.pdf', meta: 'PDF · 720 Ko · 25 avr.' },
+    { type: 'img', nom: 'Photos avant travaux Vendôme', meta: '12 photos · 1 mars' },
+    { type: 'dwg', nom: 'Plan masse Vénissieux.dwg', meta: 'AutoCAD · 5,1 Mo · 20 mars' },
+    { type: 'pdf', nom: 'Notice DTU 25.41 — placo.pdf', meta: 'PDF · 2,4 Mo · doc tech.' },
+    { type: 'xls', nom: 'Suivi heures avril.xlsx', meta: 'Excel · 95 Ko · 30 avr.' },
+];
+
+// ========== RENDU ==========
+function el(html) { const d = document.createElement('div'); d.innerHTML = html.trim(); return d.firstChild; }
+function fmt(n) { return n.toLocaleString('fr-FR'); }
+
+// Dashboard chart
+function renderChart() {
+    const data = [
+        { m: 'Jan', a: 38, b: 28 }, { m: 'Fév', a: 52, b: 34 },
+        { m: 'Mar', a: 46, b: 38 }, { m: 'Avr', a: 68, b: 42 },
+        { m: 'Mai', a: 74, b: 48 }, { m: 'Jui', a: 62, b: 44 },
+        { m: 'Jul', a: 84, b: 56 }, { m: 'Aoû', a: 95, b: 62 },
+        { m: 'Sep', a: 78, b: 54 }, { m: 'Oct', a: 88, b: 60 },
+        { m: 'Nov', a: 92, b: 66 }, { m: 'Déc', a: 100, b: 72 },
+    ];
+    const max = 110;
+    const wrap = document.getElementById('dashChart');
+    wrap.innerHTML = data.map(d => `
+        <div class="col">
+            <div class="bar-wrap">
+                <div class="bar" style="height: ${d.a / max * 100}%"></div>
+                <div class="bar alt" style="height: ${d.b / max * 100}%"></div>
+            </div>
+            <div class="lbl">${d.m}</div>
+        </div>
+    `).join('');
+}
+
+// Dashboard chantiers (top 5)
+function renderDashChantiers() {
+    document.getElementById('dashChantiers').innerHTML = CHANTIERS.slice(0, 5).map(c => `
+        <tr>
+            <td>
+                <div class="strong">${c.nom}</div>
+                <div class="grey">${c.ref}</div>
+            </td>
+            <td>${c.client}</td>
+            <td>
+                <div class="center-y">
+                    <div class="progress" style="width: 100px;"><i style="width:${c.pct}%"></i></div>
+                    <span class="strong" style="font-size:0.78rem;">${c.pct}%</span>
+                </div>
+            </td>
+            <td>${c.echeance}</td>
+            <td class="num text-right">${fmt(c.montant)} €</td>
+            <td><span class="badge ${STATUT_BADGE[c.statut].c}"><span class="dt"></span>${STATUT_BADGE[c.statut].t}</span></td>
+        </tr>
+    `).join('');
+}
+
+// Chantiers grid
+function renderChantierGrid() {
+    document.getElementById('chantierGrid').innerHTML = CHANTIERS.map(c => `
+        <div class="chantier">
+            <div class="top">
+                <div>
+                    <div class="ref">${c.ref}</div>
+                    <h4>${c.nom}</h4>
+                    <div class="meta">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                        ${c.lieu}
+                    </div>
+                </div>
+                <span class="badge ${STATUT_BADGE[c.statut].c}"><span class="dt"></span>${STATUT_BADGE[c.statut].t}</span>
+            </div>
+            <div class="row"><span class="l">Client</span><span class="r">${c.client}</span></div>
+            <div class="row"><span class="l">Montant</span><span class="r">${fmt(c.montant)} €</span></div>
+            <div class="row"><span class="l">Échéance</span><span class="r">${c.echeance}</span></div>
+            <div class="progress-row">
+                <div class="progress" style="flex:1;"><i style="width:${c.pct}%"></i></div>
+                <span class="pct">${c.pct}%</span>
+            </div>
+            <div class="chantier-team">
+                ${c.team.slice(0, 4).map((t, i) => `<span class="av-mini b${(i % 4) + 1}">${t}</span>`).join('')}
+                ${c.team.length > 4 ? `<span class="av-more">+${c.team.length - 4}</span>` : ''}
+            </div>
+        </div>
+    `).join('');
+}
+
+// Devis table
+function renderDevisTable() {
+    document.getElementById('devisTable').innerHTML = DEVIS.map(d => `
+        <tr>
+            <td class="strong">${d.num}</td>
+            <td>${d.type}</td>
+            <td>${d.client}</td>
+            <td>${d.emis}</td>
+            <td>${d.echeance}</td>
+            <td class="num text-right" style="${d.mt < 0 ? 'color: var(--red);' : ''}">${d.mt < 0 ? '−' : ''}${fmt(Math.abs(d.mt))} €</td>
+            <td><span class="badge ${DEVIS_BADGE[d.statut].c}"><span class="dt"></span>${DEVIS_BADGE[d.statut].t}</span></td>
+        </tr>
+    `).join('');
+}
+
+// Team grid
+function renderTeam() {
+    document.getElementById('teamGrid').innerHTML = TEAM.map(m => `
+        <div class="member">
+            <div class="avatar-lg" style="background:${m.c};">${m.i}</div>
+            <h4>${m.n}</h4>
+            <div class="role">${m.r}</div>
+            <div class="stats-mini">
+                <div><div class="v">${m.h}h</div><div class="l">cette sem.</div></div>
+                <div><div class="v">${m.c_count}</div><div class="l">chantiers</div></div>
+                <div><div class="v">${m.prj}</div><div class="l">en cours</div></div>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Pointage
+function renderPointage() {
+    document.getElementById('pointageList').innerHTML = POINTAGE.map(p => `
+        <div class="point-row">
+            <div class="av" style="background:${p.c};">${p.i}</div>
+            <div>
+                <div class="name">${p.n}</div>
+                <div class="meta">${p.r}</div>
+            </div>
+            <div class="text-muted">${p.ch}</div>
+            <div>${p.start}</div>
+            <div>${p.end}</div>
+            <div class="text-right" style="font-weight:600;">${p.total}</div>
+        </div>
+    `).join('');
+}
+
+// Matériaux
+function renderMateriaux() {
+    document.getElementById('materiauxTable').innerHTML = MATERIAUX.map(m => `
+        <tr>
+            <td class="grey">${m.ref}</td>
+            <td class="strong">${m.nom}</td>
+            <td>${m.frn}</td>
+            <td class="num text-right">${fmt(m.stock)}</td>
+            <td class="num text-right">${m.pu.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €</td>
+            <td><span class="badge ${MAT_BADGE[m.etat].c}"><span class="dt"></span>${MAT_BADGE[m.etat].t}</span></td>
+        </tr>
+    `).join('');
+}
+
+// Documents
+function renderDocs() {
+    document.getElementById('docGrid').innerHTML = DOCS.map(d => `
+        <div class="doc ${d.type}">
+            <div class="doc-icon">${d.type.toUpperCase()}</div>
+            <h5>${d.nom}</h5>
+            <div class="meta">${d.meta}</div>
+        </div>
+    `).join('');
+}
+
+// Planning
+function renderPlanning() {
+    const days = ['Lundi 4', 'Mardi 5', 'Mercredi 6', 'Jeudi 7', 'Vendredi 8'];
+    const projects = [
+        { nom: 'CH-014 · Lilas', team: ['KB', 'JM'], color: 'var(--accent)', days: [1,1,1,1,1] },
+        { nom: 'CH-013 · Foch', team: ['MK'], color: 'var(--blue)', days: [1,1,0,1,1] },
+        { nom: 'CH-008 · Bron', team: ['PL', 'NB'], color: 'var(--green)', days: [1,1,1,1,0] },
+        { nom: 'CH-006 · Lyon 2e', team: ['OP'], color: 'var(--purple)', days: [0,1,1,1,1] },
+        { nom: 'CH-012 · Vendôme', team: ['AT'], color: 'var(--red)', days: [1,0,1,1,0] },
+    ];
+    let html = `<div style="display:grid;grid-template-columns:200px repeat(5,1fr);gap:8px;min-width:780px;">`;
+    html += `<div></div>`;
+    html += days.map(d => `<div style="font-weight:600;padding:8px;text-align:center;background:var(--surface-2);border-radius:8px;font-size:0.82rem;">${d}</div>`).join('');
+    projects.forEach(p => {
+        html += `<div style="padding:14px 12px;background:var(--surface-2);border-radius:8px;">
+            <div style="font-weight:600;font-size:0.84rem;">${p.nom}</div>
+            <div style="display:flex;gap:-4px;margin-top:6px;">${p.team.map((t,i)=>`<span class="av-mini b${(i%4)+1}" style="margin-left:${i?-6:0}px;">${t}</span>`).join('')}</div>
+        </div>`;
+        p.days.forEach(d => {
+            html += d
+                ? `<div style="background:${p.color};opacity:0.15;border-left:3px solid ${p.color};border-radius:6px;padding:14px 8px;color:${p.color};font-weight:600;font-size:0.78rem;display:grid;place-items:center;">8h</div>`
+                : `<div style="background:transparent;"></div>`;
+        });
+    });
+    html += `</div>`;
+    document.getElementById('planning').innerHTML = html;
+}
+
+// Navigation
+function switchView(view) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+    document.getElementById('view-' + view).classList.add('active');
+    document.querySelector(`.nav-item[data-view="${view}"]`)?.classList.add('active');
+    window.scrollTo(0, 0);
+}
+
+document.querySelectorAll('.nav-item').forEach(btn => {
+    btn.addEventListener('click', () => switchView(btn.dataset.view));
+});
+
+// Filtres chips
+document.querySelectorAll('.filters').forEach(fset => {
+    fset.querySelectorAll('.chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+            fset.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+            chip.classList.add('active');
+        });
+    });
+});
+
+// Pill buttons toggle
+document.querySelectorAll('.card-head .act').forEach(act => {
+    const pills = act.querySelectorAll('.pill-btn');
+    pills.forEach(p => p.addEventListener('click', () => {
+        pills.forEach(x => x.classList.remove('active'));
+        p.classList.add('active');
+    }));
+});
+
+// Bouton "Nouveau"
+document.getElementById('btn-new').addEventListener('click', () => {
+    alert('Démo : la création de devis/chantier serait ouverte ici dans un panneau latéral.');
+});
+
+// ========== INIT ==========
+renderChart();
+renderDashChantiers();
+renderChantierGrid();
+renderDevisTable();
+renderTeam();
+renderPointage();
+renderMateriaux();
+renderDocs();
+renderPlanning();
+</script>
+
+</body>
+</html>
